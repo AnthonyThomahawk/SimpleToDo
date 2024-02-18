@@ -1,0 +1,30 @@
+JFDML JFormDesigner: "8.2.1.0.348" Java: "17.0.9" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq {space :::p, par l {comp textField1::::333:x, seq {comp label1:::p::p, space :0:208:x}}, space :::p}, seq t {space ::117:x, comp button1:::p::p, space :p:116:p}}"
+			"$verticalGroup": "par l {seq l {space :::p, comp label1:::p::p, space :::p, comp textField1:::p::p, space u:::p, comp button1:::p::p, space ::26:x}}"
+		} ) {
+			name: "this"
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label1"
+				"text": "Task name"
+				"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 11, false )
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "textField1"
+				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "textField1KeyPressed", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button1"
+				"text": "Add task (+)"
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1", true ) )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 345, 140 )
+		} )
+	}
+}

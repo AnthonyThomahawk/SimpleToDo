@@ -4,12 +4,9 @@
 
 package org.simpleToDo;
 
-import javafx.scene.control.CheckBox;
-
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.GroupLayout;
-import javax.swing.border.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * @author Enterprise
@@ -17,22 +14,30 @@ import javax.swing.border.*;
 public class MainPanel extends JPanel {
     public MainPanel() {
         initComponents();
-        addItems();
+        initTaskList();
     }
 
-    private void addItems() {
-        JPanel content = new JPanel();
-        taskLayout = new BoxLayout(content, BoxLayout.Y_AXIS);
-        content.setLayout(taskLayout);
-        JCheckBox task1 = new JCheckBox("task1");
-        //task1.setAlignmentX(CENTER_ALIGNMENT); // for center, will use that later
-        JCheckBox task2 = new JCheckBox("task2");
-        //task2.setAlignmentX(CENTER_ALIGNMENT);
-        content.add(Box.createRigidArea(new Dimension(0, 10)));
-        content.add(task1);
-        content.add(Box.createRigidArea(new Dimension(5, 5)));
-        content.add(task2);
-        scrollPane1.setViewportView(content);
+    public void addTask(String content) {
+        JCheckBox newTask = new JCheckBox(content);
+        contentP.add(Box.createRigidArea(new Dimension(5, 5)));
+        contentP.add(newTask);
+        scrollPane1.setViewportView(contentP);
+    }
+
+    private void initTaskList() {
+        contentP = new JPanel();
+        taskLayout = new BoxLayout(contentP, BoxLayout.Y_AXIS);
+        contentP.setLayout(taskLayout);
+        contentP.add(Box.createRigidArea(new Dimension(0, 10)));
+        scrollPane1.setViewportView(contentP);
+    }
+
+    private void button1(ActionEvent e) {
+        JDialog d = new JDialog(Main.mainWindow, "Add a task...", true);
+        d.getContentPane().add(new AddTask());
+        d.pack();
+        d.setLocationRelativeTo(null);
+        d.setVisible(true);
     }
 
     private void initComponents() {
@@ -50,6 +55,7 @@ public class MainPanel extends JPanel {
 
         //---- button1 ----
         button1.setText("Add a task (+)");
+        button1.addActionListener(e -> button1(e));
 
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
@@ -87,4 +93,5 @@ public class MainPanel extends JPanel {
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     private BoxLayout taskLayout;
+    private JPanel contentP;
 }

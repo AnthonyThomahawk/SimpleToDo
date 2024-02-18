@@ -5,10 +5,12 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.*;
 
 public class Main {
+    public static JFrame mainWindow;
+    public static MainPanel mainPanel;
     public static void main(String[] args) {
         FlatDarkLaf.setup();
-        MainPanel mainPanel = new MainPanel();
-        JFrame mainWindow = new JFrame();
+        mainPanel = new MainPanel();
+        mainWindow = new JFrame();
         mainWindow.setContentPane(mainPanel);
         mainWindow.pack();
         mainWindow.setVisible(true);
