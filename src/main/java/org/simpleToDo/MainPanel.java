@@ -9,7 +9,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Enterprise
@@ -56,7 +58,35 @@ public class MainPanel extends JPanel {
         }
     }
 
-    public void refreshViewport() {
+    public void moveTask(JCheckBox target, boolean up) {
+        ArrayList<JCheckBox> allTasks = getTasks();
+
+        for (int i = 0; i < allTasks.size(); i++) {
+            if (allTasks.get(i).equals(target)) {
+                if (up) {
+                    if (i == 0) {
+                        return;
+                    }
+                    Collections.swap(allTasks, i, i-1);
+                }
+                else {
+                    if (i == allTasks.size()-1) {
+                        return;
+                    }
+                    Collections.swap(allTasks, i, i+1);
+                }
+                break;
+            }
+        }
+
+        contentP.removeAll();
+        contentP.add(Box.createRigidArea(new Dimension(0, 10)));
+        for (Component c : allTasks) {
+            contentP.add(Box.createRigidArea(new Dimension(5, 5)));
+            contentP.add(c);
+        }
+
+        contentP.validate();
         scrollPane1.setViewportView(contentP);
     }
 
@@ -76,6 +106,23 @@ public class MainPanel extends JPanel {
                         }
                     });
 
+                    JMenuItem moveUpAction = new JMenuItem("Move up");
+                    moveUpAction.addActionListener(new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            moveTask(newTask, true);
+                        }
+                    });
+
+                    JMenuItem moveDownAction = new JMenuItem("Move down");
+                    moveDownAction.addActionListener(new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            moveTask(newTask, false);
+                        }
+                    });
+                    contextmenu.add(moveUpAction);
+                    contextmenu.add(moveDownAction);
                     contextmenu.add(deleteAction);
                     contextmenu.show(e.getComponent(), e.getX(), e.getY());
                 }
