@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {space :p::p, par l {comp scrollPane1:::::x, seq {comp label1:::p::p, space ::116:x, comp button2:::p:126:p, space :::p, comp button1:::p:129:p}}, space :p::p}}"
-			"$verticalGroup": "par l {seq l {space :::p, par l:::p {comp label1:::::x, comp button2::l:::x, comp button1:::::x}, space :::x, comp scrollPane1::::311:x, space :p::p}}"
+			"$horizontalGroup": "par l {seq l {space :p::p, par l {comp scrollPane1:::::x, seq {comp label1:::p::p, space ::248:x, comp button1:::p:129:p}}, space :p::p}}"
+			"$verticalGroup": "par l {seq l {space :::p, par l:::p {comp label1:::::x, comp button1:::::x}, space :::x, comp scrollPane1::::311:x, space :p::p}}"
 		} ) {
 			name: "this"
 			addEvent( new FormEvent( "java.awt.event.FocusListener", "focusGained", "thisFocusGained", true ) )
@@ -22,11 +22,6 @@ new FormModel {
 				name: "button1"
 				"text": "Add a task ➕"
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1", true ) )
-			} )
-			add( new FormComponent( "javax.swing.JButton" ) {
-				name: "button2"
-				"text": "Remove tasks ➖"
-				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button2", true ) )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
