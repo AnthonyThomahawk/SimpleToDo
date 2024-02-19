@@ -4,6 +4,7 @@
 
 package org.simpleToDo;
 
+import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -54,6 +55,10 @@ public class MainPanel extends JPanel {
         }
     }
 
+    public void refreshViewport() {
+        scrollPane1.setViewportView(contentP);
+    }
+
     public void addTask(String content) {
         JCheckBox newTask = new JCheckBox(content);
         contentP.add(Box.createRigidArea(new Dimension(5, 5)));
@@ -75,6 +80,7 @@ public class MainPanel extends JPanel {
         d.pack();
         d.setLocationRelativeTo(null);
         d.setVisible(true);
+        d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     private void button2(ActionEvent e) {
@@ -83,6 +89,22 @@ public class MainPanel extends JPanel {
         d.pack();
         d.setLocationRelativeTo(null);
         d.setVisible(true);
+        d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        d.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                refreshViewport();
+            }
+        });
+
+        d.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+                super.windowDeactivated(e);
+                refreshViewport();
+            }
+        });
     }
 
     private void initComponents() {
