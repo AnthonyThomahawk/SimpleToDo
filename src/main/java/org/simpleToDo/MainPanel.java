@@ -9,50 +9,61 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 
 /**
  * @author Enterprise
  */
 public class MainPanel extends JPanel {
     ArrayList<Task> allTasks;
+    int column = 0;
+    int row = 0;
+    double wY = 100;
     public MainPanel() {
         initComponents();
         initTaskList();
     }
 
-    public ArrayList<JCheckBox> getTaskBoxes() {
-        ArrayList<JCheckBox> res = new ArrayList<>();
-        for (int i = 0; i < allTasks.size(); i++) {
-            res.add(allTasks.get(i).checkBox);
-        }
-
-        return res;
-    }
-
-    public void removeTask(int index) {
-        JCheckBox targetBox = allTasks.get(index).checkBox;
-        allTasks.remove(index);
-        for (int i = 0; i < contentP.getComponentCount(); i++) {
-            if (targetBox.equals(contentP.getComponent(i))) {
-                contentP.remove(i);
-                contentP.remove(i-1);
-                scrollPane1.setViewportView(contentP);
-                return;
-            }
-        }
-    }
-
     public void removeTask(Task target) {
-        JCheckBox targetBox = target.checkBox;
+        contentP.remove(target.checkBox);
+        contentP.remove(target.startDate);
+        contentP.remove(target.endDate);
         allTasks.remove(target);
-        for (int i = 0; i < contentP.getComponentCount(); i++) {
-            if (targetBox.equals(contentP.getComponent(i))) {
-                contentP.remove(i);
-                contentP.remove(i-1);
-                scrollPane1.setViewportView(contentP);
-                return;
-            }
+        scrollPane1.setViewportView(contentP);
+    }
+
+    public void refreshTasks() {
+        contentP.removeAll();
+        gbc.anchor = GridBagConstraints.PAGE_START;
+        gbc.ipady = 0;
+        gbc.weighty = 1;
+        gbc.weightx = 0.5;
+        row = 0;
+        column = 0;
+        gbc.gridx = row;
+        gbc.gridy = column;
+        contentP.add(new Label("Task"),gbc);
+        gbc.gridx = row+1;
+        contentP.add(new Label("Start date"),gbc);
+        gbc.gridx = row+2;
+        contentP.add(new Label("End date"),gbc);
+        column++;
+
+        for (Task t : allTasks) {
+            gbc.weighty = wY;
+            wY = gbc.weighty * 100;
+            gbc.gridy = column;
+            gbc.gridx = row;
+            contentP.add(t.checkBox, gbc);
+            gbc.gridx = row+1;
+            contentP.add(t.startDate, gbc);
+            gbc.gridx = row+2;
+            contentP.add(t.endDate, gbc);
+            column++;
         }
+
+        contentP.validate();
+        scrollPane1.setViewportView(contentP);
     }
 
     public void moveTask(Task target, boolean up) {
@@ -74,21 +85,13 @@ public class MainPanel extends JPanel {
             }
         }
 
-        contentP.removeAll();
-        contentP.add(Box.createRigidArea(new Dimension(0, 10)));
-        ArrayList<JCheckBox> allTaskBoxes = getTaskBoxes();
-        for (Component c : allTaskBoxes) {
-            contentP.add(Box.createRigidArea(new Dimension(5, 5)));
-            contentP.add(c);
-        }
-
-        contentP.validate();
-        scrollPane1.setViewportView(contentP);
+        wY = 100;
+        refreshTasks();
     }
 
     public void addTask(String content) {
         JCheckBox newTaskBox = new JCheckBox(content);
-        Task newTask = new Task(newTaskBox, null,null);
+        Task newTask = new Task(newTaskBox, new Date(),null);
         newTask.checkBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -125,19 +128,31 @@ public class MainPanel extends JPanel {
                 }
             }
         });
+        newTask.checkBox.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (newTask.checkBox.isSelected()) {
+                    newTask.end = new Date();
+                    newTask.endDate = new Label(newTask.end.toString());
+                    refreshTasks();
+                } else {
+                    newTask.end = null;
+                    newTask.endDate = new Label("Ongoing");
+                    refreshTasks();
+                }
+            }
+        });
         allTasks.add(newTask);
-        contentP.add(Box.createRigidArea(new Dimension(5, 5)));
-        contentP.add(newTask.checkBox);
-        scrollPane1.setViewportView(contentP);
+        refreshTasks();
     }
 
     private void initTaskList() {
         contentP = new JPanel();
-        taskLayout = new BoxLayout(contentP, BoxLayout.Y_AXIS);
+        taskLayout = new GridBagLayout();
         allTasks = new ArrayList<>();
+        gbc = new GridBagConstraints();
         contentP.setLayout(taskLayout);
-        contentP.add(Box.createRigidArea(new Dimension(0, 10)));
-        scrollPane1.setViewportView(contentP);
+        refreshTasks();
     }
 
     private void button1(ActionEvent e) {
@@ -224,7 +239,7 @@ public class MainPanel extends JPanel {
     private JScrollPane scrollPane1;
     private JButton button1;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
-
-    private BoxLayout taskLayout;
+    private GridBagLayout taskLayout;
+    private GridBagConstraints gbc;
     public JPanel contentP;
 }
