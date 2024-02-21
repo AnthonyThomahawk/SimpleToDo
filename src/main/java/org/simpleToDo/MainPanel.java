@@ -4,12 +4,9 @@
 
 package org.simpleToDo;
 
-import java.awt.event.*;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.reflect.Array;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -17,28 +14,26 @@ import java.util.Collections;
  * @author Enterprise
  */
 public class MainPanel extends JPanel {
+    ArrayList<Task> allTasks;
     public MainPanel() {
         initComponents();
         initTaskList();
     }
 
-    public ArrayList<JCheckBox> getTasks() {
+    public ArrayList<JCheckBox> getTaskBoxes() {
         ArrayList<JCheckBox> res = new ArrayList<>();
-        for (int i = 0; i < contentP.getComponentCount(); i++) {
-            Component c = contentP.getComponent(i);
-            if (c instanceof JCheckBox) {
-                res.add((JCheckBox) c);
-            }
+        for (int i = 0; i < allTasks.size(); i++) {
+            res.add(allTasks.get(i).checkBox);
         }
 
         return res;
     }
 
     public void removeTask(int index) {
-        ArrayList<JCheckBox> allTasks = getTasks();
-        JCheckBox target = allTasks.get(index);
+        JCheckBox targetBox = allTasks.get(index).checkBox;
+        allTasks.remove(index);
         for (int i = 0; i < contentP.getComponentCount(); i++) {
-            if (target.equals(contentP.getComponent(i))) {
+            if (targetBox.equals(contentP.getComponent(i))) {
                 contentP.remove(i);
                 contentP.remove(i-1);
                 scrollPane1.setViewportView(contentP);
@@ -47,9 +42,11 @@ public class MainPanel extends JPanel {
         }
     }
 
-    public void removeTask(JCheckBox target) {
+    public void removeTask(Task target) {
+        JCheckBox targetBox = target.checkBox;
+        allTasks.remove(target);
         for (int i = 0; i < contentP.getComponentCount(); i++) {
-            if (target.equals(contentP.getComponent(i))) {
+            if (targetBox.equals(contentP.getComponent(i))) {
                 contentP.remove(i);
                 contentP.remove(i-1);
                 scrollPane1.setViewportView(contentP);
@@ -58,9 +55,7 @@ public class MainPanel extends JPanel {
         }
     }
 
-    public void moveTask(JCheckBox target, boolean up) {
-        ArrayList<JCheckBox> allTasks = getTasks();
-
+    public void moveTask(Task target, boolean up) {
         for (int i = 0; i < allTasks.size(); i++) {
             if (allTasks.get(i).equals(target)) {
                 if (up) {
@@ -81,7 +76,8 @@ public class MainPanel extends JPanel {
 
         contentP.removeAll();
         contentP.add(Box.createRigidArea(new Dimension(0, 10)));
-        for (Component c : allTasks) {
+        ArrayList<JCheckBox> allTaskBoxes = getTaskBoxes();
+        for (Component c : allTaskBoxes) {
             contentP.add(Box.createRigidArea(new Dimension(5, 5)));
             contentP.add(c);
         }
@@ -91,8 +87,9 @@ public class MainPanel extends JPanel {
     }
 
     public void addTask(String content) {
-        JCheckBox newTask = new JCheckBox(content);
-        newTask.addMouseListener(new MouseAdapter() {
+        JCheckBox newTaskBox = new JCheckBox(content);
+        Task newTask = new Task(newTaskBox, null,null);
+        newTask.checkBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
@@ -128,14 +125,16 @@ public class MainPanel extends JPanel {
                 }
             }
         });
+        allTasks.add(newTask);
         contentP.add(Box.createRigidArea(new Dimension(5, 5)));
-        contentP.add(newTask);
+        contentP.add(newTask.checkBox);
         scrollPane1.setViewportView(contentP);
     }
 
     private void initTaskList() {
         contentP = new JPanel();
         taskLayout = new BoxLayout(contentP, BoxLayout.Y_AXIS);
+        allTasks = new ArrayList<>();
         contentP.setLayout(taskLayout);
         contentP.add(Box.createRigidArea(new Dimension(0, 10)));
         scrollPane1.setViewportView(contentP);
