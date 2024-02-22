@@ -9,8 +9,11 @@ public class Task {
         checkBox = check;
         start = s;
         end = e;
-        startDate = new Label(s.toString());
-        endDate = new Label("Ongoing");
+        startDate = new Label(start.toString());
+        if (end == null)
+            endDate = new Label("Ongoing");
+        else
+            endDate = new Label(end.toString());
     }
     JCheckBox checkBox;
     Date start;

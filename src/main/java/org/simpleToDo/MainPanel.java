@@ -7,6 +7,9 @@ package org.simpleToDo;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -89,9 +92,22 @@ public class MainPanel extends JPanel {
         refreshTasks();
     }
 
-    public void addTask(String content) {
+    public void addTask(String content, Date start, Date end) {
         JCheckBox newTaskBox = new JCheckBox(content);
-        Task newTask = new Task(newTaskBox, new Date(),null);
+        Task newTask;
+        if (start == null && end == null)
+            newTask = new Task(newTaskBox, new Date(),null);
+        else {
+            if (start == null) {
+                return;
+            }
+            newTask = new Task(newTaskBox, start, end);
+            if (end != null) {
+                newTask.checkBox.setSelected(true);
+            }
+        }
+
+
         newTask.checkBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -134,12 +150,11 @@ public class MainPanel extends JPanel {
                 if (newTask.checkBox.isSelected()) {
                     newTask.end = new Date();
                     newTask.endDate = new Label(newTask.end.toString());
-                    refreshTasks();
                 } else {
                     newTask.end = null;
                     newTask.endDate = new Label("Ongoing");
-                    refreshTasks();
                 }
+                refreshTasks();
             }
         });
         allTasks.add(newTask);
@@ -172,12 +187,89 @@ public class MainPanel extends JPanel {
         // TODO add your code here
     }
 
+    private void menuItem5(ActionEvent e) {
+        System.exit(0);
+    }
+
+    private void menuItem3(ActionEvent e) {
+        StringBuilder data = new StringBuilder("TASK\tSTART_DATE\tEND_DATE\n");
+        for (Task t : allTasks) {
+            String tname = t.checkBox.getText();
+            String sdate = t.startDate.getText();
+            String edate = t.endDate.getText();
+
+            data.append(tname).append("\t").append(sdate).append("\t").append(edate).append("\n");
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save tasks file");
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.endsWith(".csv")) {
+                path += ".csv";
+            }
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(path, true));
+                writer.write(data.toString());
+                writer.close();
+            } catch (IOException x) {
+                x.printStackTrace();
+            }
+
+        }
+
+    }
+
+    private void menuItem4(ActionEvent e) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Load tasks file");
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String path = file.getAbsolutePath();
+
+            try {
+                BufferedReader reader;
+
+                reader = new BufferedReader(new FileReader(path));
+                allTasks = new ArrayList<>();
+                reader.readLine(); // first line is not important
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] toks = line.split("\t");
+                    Date startD = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(toks[1]);
+                    if (!toks[2].equals("Ongoing")) {
+                        Date endD = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(toks[2]);
+                        addTask(toks[0], startD, endD);
+                    } else {
+                        addTask(toks[0], startD, null);
+                    }
+                }
+
+                reader.close();
+            } catch (IOException x) {
+                x.printStackTrace();
+            } catch (ParseException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        }
+
+
+
+
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         // Generated using JFormDesigner Educational license - Anthony Thomakos (lolcc iojvnd)
-        label1 = new JLabel();
         scrollPane1 = new JScrollPane();
         button1 = new JButton();
+        menuBar1 = new JMenuBar();
+        menu2 = new JMenu();
+        menuItem3 = new JMenuItem();
+        menuItem4 = new JMenuItem();
+        menuItem5 = new JMenuItem();
 
         //======== this ========
         addFocusListener(new FocusAdapter() {
@@ -186,10 +278,6 @@ public class MainPanel extends JPanel {
                 thisFocusGained(e);
             }
         });
-
-        //---- label1 ----
-        label1.setText("Tasks");
-        label1.setFont(label1.getFont().deriveFont(label1.getFont().getStyle() | Font.BOLD, label1.getFont().getSize() + 14f));
 
         //======== scrollPane1 ========
         {
@@ -205,6 +293,33 @@ public class MainPanel extends JPanel {
         button1.setText("Add a task \u2795");
         button1.addActionListener(e -> button1(e));
 
+        //======== menuBar1 ========
+        {
+            menuBar1.setBackground(Color.gray);
+            menuBar1.setBorderPainted(false);
+
+            //======== menu2 ========
+            {
+                menu2.setText("File");
+
+                //---- menuItem3 ----
+                menuItem3.setText("Save as CSV");
+                menuItem3.addActionListener(e -> menuItem3(e));
+                menu2.add(menuItem3);
+
+                //---- menuItem4 ----
+                menuItem4.setText("Load CSV");
+                menuItem4.addActionListener(e -> menuItem4(e));
+                menu2.add(menuItem4);
+
+                //---- menuItem5 ----
+                menuItem5.setText("Exit");
+                menuItem5.addActionListener(e -> menuItem5(e));
+                menu2.add(menuItem5);
+            }
+            menuBar1.add(menu2);
+        }
+
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
         layout.setHorizontalGroup(
@@ -212,32 +327,35 @@ public class MainPanel extends JPanel {
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(layout.createParallelGroup()
+                        .addComponent(menuBar1, GroupLayout.DEFAULT_SIZE, 723, Short.MAX_VALUE)
                         .addComponent(scrollPane1)
                         .addGroup(layout.createSequentialGroup()
-                            .addComponent(label1)
-                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 248, Short.MAX_VALUE)
-                            .addComponent(button1, GroupLayout.PREFERRED_SIZE, 129, GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(button1, GroupLayout.PREFERRED_SIZE, 134, GroupLayout.PREFERRED_SIZE)
+                            .addGap(0, 589, Short.MAX_VALUE)))
                     .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                        .addComponent(label1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(button1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
-                    .addContainerGap())
+                    .addComponent(menuBar1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(button1, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE))
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
     // Generated using JFormDesigner Educational license - Anthony Thomakos (lolcc iojvnd)
-    private JLabel label1;
     private JScrollPane scrollPane1;
     private JButton button1;
+    private JMenuBar menuBar1;
+    private JMenu menu2;
+    private JMenuItem menuItem3;
+    private JMenuItem menuItem4;
+    private JMenuItem menuItem5;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
     private GridBagLayout taskLayout;
     private GridBagConstraints gbc;

@@ -25,7 +25,7 @@ public class AddTask extends JPanel {
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        Main.mainPanel.addTask(textField1.getText());
+        Main.mainPanel.addTask(textField1.getText(), null ,null);
         Component component = (Component) e.getSource();
         JDialog dialog = (JDialog) SwingUtilities.getRoot(component);
         dialog.dispose();
